@@ -3,15 +3,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+using Vertex = MeshGenerator.Vertex;
+using Triangle = MeshGenerator.Triangle;
+
 [RequireComponent(typeof(MeshFilter))]
 [RequireComponent(typeof(MeshRenderer))]
-public class PlaneGenerator : MonoBehaviour {
+public class PlaneGenerator : MeshGenerator {
 
     /* --- Data --- */
     #region Data   
 
     [System.Serializable]
-    public struct PlaneSettings {
+    public class PlaneSettings {
         public float width;
         public float height;
         public int subdivisions;
@@ -25,138 +28,78 @@ public class PlaneGenerator : MonoBehaviour {
         }
     }
 
-    public struct MeshSettings {
-        public Vector3[] positions;
-        public int[] indices;
-        public Color[] colors;
-        public MeshTopology topology;
-
-        public MeshSettings(List<Vector3> positions, List<int> indices, List<Color> colors, MeshTopology topology) {
-            this.positions = positions.ToArray();
-            this.indices = indices.ToArray();
-            this.colors = colors.ToArray();
-            this.topology = topology;
-        }
-    }
-
     #endregion
 
     /* --- Fields --- */
     #region Fields
 
-    // Values.
-    private static float PI = Mathf.PI;
-    private static float PHI = (1f + Mathf.Sqrt(5)) / 2f;
-
     // Settings.
     [SerializeField] private PlaneSettings planeSettings;
 
-    // Mesh.
-    [HideInInspector] public MeshRenderer meshRenderer;
-    [HideInInspector] public MeshFilter meshFilter;
-    private MeshSettings meshSettings;
-
-    // Switches.
-    public bool construct = false;
-    public bool animatedConstruction = false;
-    public bool resetRotation = false;
-
-    // Animation.
-    [SerializeField] private float animationRatio = 0f;
-    [SerializeField] private float animationSpeed = 1f;
-    public AnimationCurve verticesAnimationCurve;
-    public AnimationCurve radiusAnimationCurve;
-
-    // Rotation.
-    [SerializeField] private Vector3 rotationAxis;
-    [SerializeField] private float rotationSpeed;
-
     #endregion
 
-    /* --- Unity --- */
-    #region Unity
+    /* --- Construction --- */
+    #region Construction
 
-    void Start() {
-        Init();
+    protected override MeshSettings Generate() {
+        return Construct(planeSettings);
     }
 
-    void Update() {
+    public MeshSettings Construct(float width, float height, int subdivisions = 1, MeshTopology topology = MeshTopology.Triangles) {
+        PlaneSettings planeSettings = new PlaneSettings(width, height, subdivisions, topology);
+        return Construct(planeSettings);
+    }
 
-        if (animatedConstruction) {
-            animationRatio += Time.deltaTime * animationSpeed;
-            float verticesRatio = verticesAnimationCurve.Evaluate(animationRatio);
-            float radiusRatio = radiusAnimationCurve.Evaluate(animationRatio);
+    public MeshSettings Construct(PlaneSettings planeSettings) {
+        List<int> indices = new List<int>();
 
-            PlaneSettings currSettings = new PlaneSettings(planeSettings.radius * radiusRatio, (int)(planeSettings.vertices * verticesRatio), planeSettings.topology);
-            meshSettings = Generate(currSettings);
-            RenderToMesh(meshSettings);
-            if (animationRatio >= 1f) {
-                animationRatio = 0f;
-                animatedConstruction = false;
+        Vertex[,] vertices = new Vertex[planeSettings.subdivisions + 1, planeSettings.subdivisions + 1];
+
+        float heightIncrement = planeSettings.height / planeSettings.subdivisions;
+        float heightOffset = -planeSettings.height / 2f;
+        float widthIncrement = planeSettings.width / planeSettings.subdivisions;
+        float widthOffset = -planeSettings.width / 2f;
+
+        for (int i = 0; i <= planeSettings.subdivisions; i++) {
+            float y = i * heightIncrement + heightOffset;
+            for (int j = 0; j <= planeSettings.subdivisions; j++) {
+                float x = j * widthIncrement + widthOffset;
+                Color color = new Color(i % 2 == 0 && j % 2 == 0 ? 1f : 0f, i % 2 == 1 && j % 2 == 0 ? 1f : 0f, i % 2 == 1 && j % 2 == 1 ? 1f : 0f, 1f);
+                if (i % 2 == 0 && j % 2 == 1) {
+                    color = Color.yellow;
+                }
+                vertices[i, j] = new Vertex(x, y, 0, color, i * (planeSettings.subdivisions + 1) + j);
             }
         }
 
-        if (construct) {
-            meshSettings = Construct(planeSettings);
-            RenderToMesh(meshSettings);
-            construct = false;
+        List<Triangle> triangles = new List<Triangle>();
+        for (int i = 0; i < planeSettings.subdivisions; i++) {
+            for (int j = 0; j < planeSettings.subdivisions; j++) {
+                triangles.Add(new Triangle(vertices[i, j], vertices[i + 1, j], vertices[i, j + 1]));
+                triangles.Add(new Triangle(vertices[i, j], vertices[i, j + 1], vertices[i + 1, j]));
+
+                triangles.Add(new Triangle(vertices[i + 1, j + 1], vertices[i, j + 1], vertices[i + 1, j]));
+                triangles.Add(new Triangle(vertices[i + 1, j + 1], vertices[i + 1, j], vertices[i, j + 1]));
+            }
         }
 
-        if (resetRotation) {
-            ResetRotation();
-            resetRotation = false;
+        Vector3[] points = new Vector3[(planeSettings.subdivisions + 1) * (planeSettings.subdivisions + 1)];
+        Color[] colors = new Color[(planeSettings.subdivisions + 1) * (planeSettings.subdivisions + 1)];
+        for (int i = 0; i <= planeSettings.subdivisions; i++) {
+            for (int j = 0; j <= planeSettings.subdivisions; j++) {
+                points[vertices[i, j].index] = vertices[i, j].position;
+                colors[vertices[i, j].index] = vertices[i, j].color;
+            }
         }
 
-    }
+        for (int i = 0; i < triangles.Count; i++) {
+            indices.Add(triangles[i].vertices[0].index);
+            indices.Add(triangles[i].vertices[1].index);
+            indices.Add(triangles[i].vertices[2].index);
+        }
 
-    void FixedUpdate() {
-        float deltaTime = Time.fixedDeltaTime;
-        Rotate(deltaTime);
-    }
+        return new MeshSettings(points, indices, colors, MeshTopology.Triangles);
 
-    #endregion
-
-    #region Initialization
-
-    public void Init() {
-        // Caching.
-        meshRenderer = GetComponent<MeshRenderer>();
-        meshFilter = GetComponent<MeshFilter>();
-    }
-
-    #endregion
-
-    #region Construction
-    
-    private void Construct(PlaneSettings planeSettings) {
-        List<Vector3> points = new List<Vector3>();
-
-        points.Add(new Vector3(planeSettings.width, planeSettings.height));
-        points.Add(new Vector3(planeSettings.width, -planeSettings.height));
-        points.Add(new Vector3(-planeSettings.width, planeSettings.height));
-        points.Add(new Vector3(-planeSettings.width, -planeSettings.height));
-
-    }
-
-    #endregion
-
-    #region Rendering
-
-    private void RenderToMesh(MeshSettings meshSettings) {
-        meshFilter.mesh = new Mesh();
-        // meshFilter.mesh.MarkDynamic();
-
-        meshFilter.mesh.SetVertices(meshSettings.positions);
-        meshFilter.mesh.SetIndices(meshSettings.indices, meshSettings.topology, 0);
-        meshFilter.mesh.colors = meshSettings.colors;
-    }
-
-    private void Rotate(float deltaTime) {
-        transform.eulerAngles += rotationAxis * rotationSpeed * deltaTime;
-    }
-
-    private void ResetRotation() {
-        transform.eulerAngles = Vector3.zero;
     }
 
     #endregion

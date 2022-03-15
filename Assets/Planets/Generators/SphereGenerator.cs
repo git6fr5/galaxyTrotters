@@ -3,36 +3,25 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+using Vertex = MeshGenerator.Vertex;
+using Triangle = MeshGenerator.Triangle;
+
 [RequireComponent(typeof(MeshFilter))]
 [RequireComponent(typeof(MeshRenderer))]
-public class SphereGenerator : MonoBehaviour {
+public class SphereGenerator : MeshGenerator {
 
     /* --- Data --- */
     #region Data   
 
     [System.Serializable]
-    public struct SphereSettings {
+    public class SphereSettings {
         public float radius;
-        public int vertices;
+        public int subdivisions;
         public MeshTopology topology;
 
-        public SphereSettings(float radius, int vertices, MeshTopology topology) {
+        public SphereSettings(float radius, int subdivisions, MeshTopology topology) {
             this.radius = radius;
-            this.vertices = vertices;
-            this.topology = topology;
-        }
-    }
-
-    public struct MeshSettings {
-        public Vector3[] positions;
-        public int[] indices;
-        public Color[] colors;
-        public MeshTopology topology;
-
-        public MeshSettings(List<Vector3> positions, List<int> indices, List<Color> colors, MeshTopology topology) {
-            this.positions = positions.ToArray();
-            this.indices = indices.ToArray();
-            this.colors = colors.ToArray();
+            this.subdivisions = subdivisions;
             this.topology = topology;
         }
     }
@@ -42,198 +31,240 @@ public class SphereGenerator : MonoBehaviour {
     /* --- Fields --- */
     #region Fields
 
-    // Values.
-    private static float PI = Mathf.PI;
-    private static float PHI = (1f + Mathf.Sqrt(5)) / 2f;
+    // Components.
+    public PlaneGenerator planeGenerator;
 
     // Settings.
     [SerializeField] private SphereSettings sphereSettings;
-
-    // Mesh.
-    [HideInInspector] public MeshRenderer meshRenderer;
-    [HideInInspector] public MeshFilter meshFilter;
-    private MeshSettings meshSettings;
-
-    // Switches.
-    public bool construct = false;
-    public bool animatedConstruction = false;
-    public bool resetRotation = false;
-
-    // Animation.
-    [SerializeField] private float animationRatio = 0f;
-    [SerializeField] private float animationSpeed = 1f;
-    public AnimationCurve verticesAnimationCurve;
-    public AnimationCurve radiusAnimationCurve;
-
-    // Rotation.
-    [SerializeField] private Vector3 rotationAxis;
-    [SerializeField] private float rotationSpeed;
+    public SphereSettings Settings => sphereSettings;
 
     #endregion
 
-    /* --- Unity --- */
-    #region Unity
+    /* --- Construction --- */
+    #region Construction
 
-    void Start() {
-        Init();
+    protected override MeshSettings Generate() {
+        return Construct(sphereSettings);
     }
 
-    void Update() {
+    //protected void AnimatedConstruction() {
+    //    float verticesRatio = verticesAnimationCurve.Evaluate(animationRatio);
+    //    float radiusRatio = radiusAnimationCurve.Evaluate(animationRatio);
+    //    SphereSettings currSettings = new SphereSettings(sphereSettings.radius * radiusRatio, (int)(sphereSettings.vertices * verticesRatio), sphereSettings.topology);
+    //    return Construct(currSettings);
+    //}
 
-        if (animatedConstruction) {
-            animationRatio += Time.deltaTime * animationSpeed;
-            float verticesRatio = verticesAnimationCurve.Evaluate(animationRatio);
-            float radiusRatio = radiusAnimationCurve.Evaluate(animationRatio);
+    protected MeshSettings ConstructIcoPlanes(SphereSettings sphereSettings) {
 
-            SphereSettings currSettings = new SphereSettings(sphereSettings.radius * radiusRatio, (int)(sphereSettings.vertices * verticesRatio), sphereSettings.topology);
-            meshSettings = Fibonnaci(currSettings);
-            RenderToMesh(meshSettings);
-            if (animationRatio >= 1f) {
-                animationRatio = 0f;
-                animatedConstruction = false;
+        MeshSettings meshSettingsA = planeGenerator.Construct(PHI, 1);
+
+        MeshSettings meshSettingsB = planeGenerator.Construct(PHI, 1);
+        meshSettingsB *= Vector3.up * 90f;
+        meshSettingsB *= Vector3.forward * 90f;
+
+        MeshSettings meshSettingsC = planeGenerator.Construct(PHI, 1);
+        meshSettingsC *= Vector3.forward * 90f;
+        meshSettingsC *= Vector3.up * 90f;
+        
+        meshSettingsA.SetColor(Color.blue);
+        meshSettingsB.SetColor(Color.red);
+        meshSettingsC.SetColor(Color.green);
+
+        return meshSettingsA + meshSettingsB + meshSettingsC;
+    }
+
+    protected MeshSettings ConstructIcohedron(SphereSettings sphereSettings) {
+        
+        List<Vertex> vertices = new List<Vertex>();
+
+        vertices.Add(new Vertex(-1, PHI, 0));
+        vertices.Add(new Vertex(1, PHI, 0));
+        vertices.Add(new Vertex(-1, -PHI, 0));
+        vertices.Add(new Vertex(1, -PHI, 0));
+
+        vertices.Add(new Vertex(0, -1, PHI));
+        vertices.Add(new Vertex(0, 1, PHI));
+        vertices.Add(new Vertex(0, -1, -PHI));
+        vertices.Add(new Vertex(0, 1, -PHI));
+
+        vertices.Add(new Vertex(PHI, 0, -1));
+        vertices.Add(new Vertex(PHI, 0, 1));
+        vertices.Add(new Vertex(-PHI, 0, -1));
+        vertices.Add(new Vertex(-PHI, 0, 1));
+
+        for (int i = 0; i < vertices.Count; i++) {
+            vertices[i].position *= sphereSettings.radius;
+            vertices[i].index = i;
+        }
+
+        // create 20 triangles of the icosahedron
+        List<Triangle> triangles = new List<Triangle>();
+
+        // 5 faces around point 0
+        triangles.Add(new Triangle(vertices[0], vertices[11], vertices[5]));
+        triangles.Add(new Triangle(vertices[0], vertices[5], vertices[1]));
+        triangles.Add(new Triangle(vertices[0], vertices[1], vertices[7]));
+        triangles.Add(new Triangle(vertices[0], vertices[7], vertices[10]));
+        triangles.Add(new Triangle(vertices[0], vertices[10], vertices[11]));
+
+        // pointArray[5] adjacent faces
+        triangles.Add(new Triangle(vertices[1], vertices[5], vertices[9]));
+        triangles.Add(new Triangle(vertices[5], vertices[11], vertices[4]));
+        triangles.Add(new Triangle(vertices[11], vertices[10], vertices[2]));
+        triangles.Add(new Triangle(vertices[10], vertices[7], vertices[6]));
+        triangles.Add(new Triangle(vertices[7], vertices[1], vertices[8]));
+
+        // 5 faces around point 3
+        triangles.Add(new Triangle(vertices[3], vertices[9], vertices[4]));
+        triangles.Add(new Triangle(vertices[3], vertices[4], vertices[2]));
+        triangles.Add(new Triangle(vertices[3], vertices[2], vertices[6]));
+        triangles.Add(new Triangle(vertices[3], vertices[6], vertices[8]));
+        triangles.Add(new Triangle(vertices[3], vertices[8], vertices[9]));
+
+        // 5 adjacent faces
+        triangles.Add(new Triangle(vertices[4], vertices[9], vertices[5]));
+        triangles.Add(new Triangle(vertices[2], vertices[4], vertices[11]));
+        triangles.Add(new Triangle(vertices[6], vertices[2], vertices[10]));
+        triangles.Add(new Triangle(vertices[8], vertices[6], vertices[7]));
+        triangles.Add(new Triangle(vertices[9], vertices[8], vertices[1]));
+
+        Vector3[] points = new Vector3[vertices.Count];
+        Color[] colors = new Color[vertices.Count];
+        for (int i = 0; i < vertices.Count; i++) {
+            points[i] = vertices[i].position;
+            colors[i] = new Color(i % 3 == 0 ? 1f : 0f, i % 3 == 1 ? 1f : 0f, i % 3 == 2 ? 1f : 0f, 1f);
+        }
+
+        int[] indices = new int[3 * triangles.Count];
+        for (int i = 0; i < triangles.Count; i++) {
+            for (int j = 0; j < 3; j++) {
+                indices[3 * i + j] = triangles[i].vertices[j].index;
             }
         }
 
-        if (construct) {
-            meshSettings = Fibonnaci(sphereSettings);
-            RenderToMesh(meshSettings);
-            construct = false;
+        return new MeshSettings(points, indices, colors);
+    }
+
+    protected MeshSettings Construct(SphereSettings sphereSettings) {
+
+        List<Vertex> vertices = new List<Vertex>();
+
+        vertices.Add(new Vertex(-1, PHI, 0));
+        vertices.Add(new Vertex(1, PHI, 0));
+        vertices.Add(new Vertex(-1, -PHI, 0));
+        vertices.Add(new Vertex(1, -PHI, 0));
+
+        vertices.Add(new Vertex(0, -1, PHI));
+        vertices.Add(new Vertex(0, 1, PHI));
+        vertices.Add(new Vertex(0, -1, -PHI));
+        vertices.Add(new Vertex(0, 1, -PHI));
+
+        vertices.Add(new Vertex(PHI, 0, -1));
+        vertices.Add(new Vertex(PHI, 0, 1));
+        vertices.Add(new Vertex(-PHI, 0, -1));
+        vertices.Add(new Vertex(-PHI, 0, 1));
+
+        for (int i = 0; i < vertices.Count; i++) {
+            vertices[i].index = i;
         }
 
-        if (resetRotation) {
-            ResetRotation();
-            resetRotation = false;
+        // create 20 triangles of the icosahedron
+        List<Triangle> triangles = new List<Triangle>();
+
+        // 5 faces around point 0
+        triangles.Add(new Triangle(vertices[0], vertices[11], vertices[5]));
+        triangles.Add(new Triangle(vertices[0], vertices[5], vertices[1]));
+        triangles.Add(new Triangle(vertices[0], vertices[1], vertices[7]));
+        triangles.Add(new Triangle(vertices[0], vertices[7], vertices[10]));
+        triangles.Add(new Triangle(vertices[0], vertices[10], vertices[11]));
+
+        // pointArray[5] adjacent faces
+        triangles.Add(new Triangle(vertices[1], vertices[5], vertices[9]));
+        triangles.Add(new Triangle(vertices[5], vertices[11], vertices[4]));
+        triangles.Add(new Triangle(vertices[11], vertices[10], vertices[2]));
+        triangles.Add(new Triangle(vertices[10], vertices[7], vertices[6]));
+        triangles.Add(new Triangle(vertices[7], vertices[1], vertices[8]));
+
+        // 5 faces around point 3
+        triangles.Add(new Triangle(vertices[3], vertices[9], vertices[4]));
+        triangles.Add(new Triangle(vertices[3], vertices[4], vertices[2]));
+        triangles.Add(new Triangle(vertices[3], vertices[2], vertices[6]));
+        triangles.Add(new Triangle(vertices[3], vertices[6], vertices[8]));
+        triangles.Add(new Triangle(vertices[3], vertices[8], vertices[9]));
+
+        // 5 adjacent faces
+        triangles.Add(new Triangle(vertices[4], vertices[9], vertices[5]));
+        triangles.Add(new Triangle(vertices[2], vertices[4], vertices[11]));
+        triangles.Add(new Triangle(vertices[6], vertices[2], vertices[10]));
+        triangles.Add(new Triangle(vertices[8], vertices[6], vertices[7]));
+        triangles.Add(new Triangle(vertices[9], vertices[8], vertices[1]));
+
+
+        // refine triangles
+        for (int i = 0; i < sphereSettings.subdivisions; i++) {
+            List<Triangle> subdividedTriangles = new List<Triangle>();
+            List<Vertex> subdivisionVertices = new List<Vertex>();
+
+            foreach (Triangle triangle in triangles) {
+
+                Vertex[] bisects = new Vertex[3];
+
+                triangle.vertices[0].index = subdivisionVertices.Count;
+                subdivisionVertices.Add(triangle.vertices[0]);
+
+                triangle.vertices[1].index = subdivisionVertices.Count;
+                subdivisionVertices.Add(triangle.vertices[1]);
+
+                triangle.vertices[2].index = subdivisionVertices.Count;
+                subdivisionVertices.Add(triangle.vertices[2]);
+
+                // replace triangle by 4 triangles
+                bisects[0] = Bisect(triangle.vertices[0], triangle.vertices[1], ref subdivisionVertices);
+                bisects[1] = Bisect(triangle.vertices[1], triangle.vertices[2], ref subdivisionVertices);
+                bisects[2] = Bisect(triangle.vertices[2], triangle.vertices[0], ref subdivisionVertices);
+
+                subdividedTriangles.Add(new Triangle(triangle.vertices[0], bisects[0], bisects[2]));
+                subdividedTriangles.Add(new Triangle(triangle.vertices[1], bisects[1], bisects[0]));
+                subdividedTriangles.Add(new Triangle(triangle.vertices[2], bisects[2], bisects[1]));
+                subdividedTriangles.Add(new Triangle(bisects[0], bisects[1], bisects[2]));
+
+            }
+            vertices = subdivisionVertices;
+            triangles = subdividedTriangles;
         }
 
-    }
 
-    void FixedUpdate() {
-        float deltaTime = Time.fixedDeltaTime;
-        Rotate(deltaTime);
-
-
-    }
-
-    #endregion
-
-    #region Initialization
-
-    public void Init() {
-        // Caching.
-        meshRenderer = GetComponent<MeshRenderer>();
-        meshFilter = GetComponent<MeshFilter>();
-    }
-
-    #endregion
-
-    #region Construction
-
-    private MeshSettings Ico(SphereSettings sphereSettings) {
-        List<Vector3> points = new List<Vector3>();
-        List<int> indices = new List<int>();
-        List<Color> colors = new List<Color>();
-
-        for (int i = 0; i < sphereSettings.vertices; i++) {
-
-            CreateRectangle(PHI, 1f);
-
+        Vector3[] points = new Vector3[vertices.Count];
+        Color[] colors = new Color[vertices.Count];
+        for (int i = 0; i < vertices.Count; i++) {
+            points[vertices[i].index] = vertices[i].position;
+            colors[vertices[i].index] = new Color(i % 3 == 0 ? 1f : 0f, i % 3 == 1 ? 1f : 0f, i % 3 == 2 ? 1f : 0f, 1f);
         }
 
-        switch (sphereSettings.topology) {
-            case MeshTopology.Triangles:
-                for (int i = 2; i < sphereSettings.vertices; i++) {
-                    indices.Add(i - 2);
-                    indices.Add(i - 1);
-                    indices.Add(i);
-                }
-                break;
-            default:
-                for (int i = 0; i < sphereSettings.vertices; i++) {
-                    indices.Add(i);
-                }
-                break;
+        int[] indices = new int[3 * triangles.Count];
+        for (int i = 0; i < triangles.Count; i++) {
+            for (int j = 0; j < 3; j++) {
+                indices[3 * i + j] = triangles[i].vertices[j].index;
+            }
         }
 
-        return new MeshSettings(points, indices, colors, sphereSettings.topology);
+        print(vertices.Count);
+
+        return MeshSettings.Spherify(new MeshSettings(points, indices, colors), sphereSettings.radius);
     }
 
-    private void CreateRectangle(float width, float height) {
-        List<Vector3> points = new List<Vector3>();
+    private Vertex Bisect(Vertex v1, Vertex v2, ref List<Vertex> subdivisionCache) {
 
-        pointA = new Vector3(width, height);
-        pointB = new Vector3(width, height);
-        pointA = new Vector3(width, height);
-        pointA = new Vector3(width, height);
-
-    }
-
-    private MeshSettings Fibonnaci(SphereSettings sphereSettings) {
-        List<Vector3> points = new List<Vector3>();
-        List<int> indices = new List<int>();
-        List<Color> colors = new List<Color>();
-
-        for (int i = 0; i < sphereSettings.vertices; i++) {
-            float angleA = Mathf.Acos(1f - 2f * (float)i / sphereSettings.vertices);
-            float angleB = 2 * PI * PHI * i;
-            Vector3 point = sphereSettings.radius * new Vector3(Mathf.Sin(angleA) * Mathf.Cos(angleB), Mathf.Sin(angleA) * Mathf.Sin(angleB), Mathf.Cos(angleA));
-            points.Add(point);
-            colors.Add(i % 3 == 0 ? Color.red : (i % 3 == 1 ? Color.blue : Color.green));
+        Vector3 position = (v1.position + v2.position) / 2f;
+        Vertex cachedVertex = subdivisionCache.Find(vert => vert.position == position);
+        if (cachedVertex != null) {
+            return cachedVertex;
         }
-
-        switch (sphereSettings.topology) {
-            case MeshTopology.Triangles:
-                for (int i = 2; i < sphereSettings.vertices; i++) {
-                    indices.Add(i - 2);
-                    indices.Add(i - 1);
-                    indices.Add(i);
-                }
-                break;
-            default:
-                for (int i = 0; i < sphereSettings.vertices; i++) {
-                    indices.Add(i);
-                }
-                break;
+        else {
+            Vertex newVertex = new Vertex(position.x, position.y, position.z, (v1.color + v2.color) / 2f, subdivisionCache.Count);
+            subdivisionCache.Add(newVertex);
+            return newVertex;
         }
-
-        return new MeshSettings(points, indices, colors, sphereSettings.topology);
-    }
-
-    private MeshSettings Concavity(SphereSettings sphereSettings) {
-        List<Vector3> points = new List<Vector3>();
-        List<int> indices = new List<int>();
-        List<Color> colors = new List<Color>();
-
-        for (int i = 0; i < sphereSettings.vertices; i++) {
-            float angleA = Mathf.Acos(1f - 2f * (float)i / sphereSettings.vertices);
-            float angleB = 2 * PI * PHI * i;
-            Vector3 point = sphereSettings.radius * new Vector3(Mathf.Sin(angleA) * Mathf.Cos(angleB), Mathf.Sin(angleA) * Mathf.Sin(angleA), Mathf.Cos(angleA));
-            points.Add(point);
-            indices.Add(i);
-            colors.Add(Color.white);
-        }
-
-        return new MeshSettings(points, indices, colors, sphereSettings.topology);
-    }
-
-    #endregion
-
-    #region Rendering
-
-    private void RenderToMesh(MeshSettings meshSettings) {
-        meshFilter.mesh = new Mesh();
-        // meshFilter.mesh.MarkDynamic();
-
-        meshFilter.mesh.SetVertices(meshSettings.positions);
-        meshFilter.mesh.SetIndices(meshSettings.indices, meshSettings.topology, 0);
-        meshFilter.mesh.colors = meshSettings.colors;
-    }
-
-    private void Rotate(float deltaTime) {
-        transform.eulerAngles += rotationAxis * rotationSpeed * deltaTime;
-    }
-
-    private void ResetRotation() {
-        transform.eulerAngles = Vector3.zero;
     }
 
     #endregion
