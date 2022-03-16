@@ -1,0 +1,57 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel ComputeVertexCraters
+#pragma kernel ComputeVertexWave
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+
+// RWTexture2D<float4> Result;
+
+RWStructuredBuffer<float3> vertices;
+RWStructuredBuffer<float> heights;
+uint vertexCount;
+float waveLength;
+
+[numthreads(512,1,1)]
+void ComputeVertexWave(uint id : SV_DispatchThreadID)
+{
+    if (id >= vertexCount) {
+        return;
+    }
+
+    float3 vertexPosition = vertices[id];
+    heights[id] = 1 + 0.25 * sin(vertexPosition.y * waveLength);
+    vertices[id] = heights[id] * vertexPosition;
+}
+
+int craterCount;
+RWStructuredBuffer<float3> craterOrigins;
+RWStructuredBuffer<float> craterRadii;
+RWStructuredBuffer<float> craterDepths;
+
+[numthreads(512, 1, 1)]
+void ComputeVertexCraters(uint id : SV_DispatchThreadID)
+{
+    // Safety.
+    if (id >= vertexCount) {
+        return;
+    }
+
+    float3 vertexPosition = vertices[id];
+    float height = 1;
+
+    for (int i = 0; i < craterCount; i++)
+    {
+        float distanceToCrater = length(vertexPosition - craterOrigins[i]);
+        bool withinCrater = distanceToCrater < craterRadii[i];
+
+        if (withinCrater) {
+            height -= craterDepths[i];
+        }
+
+    }
+
+    heights[id] = height;
+    vertices[id] = heights[id] * vertexPosition;
+
+}

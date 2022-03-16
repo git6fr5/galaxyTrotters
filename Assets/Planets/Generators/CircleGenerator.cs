@@ -8,7 +8,7 @@ using Triangle = MeshGenerator.Triangle;
 
 [RequireComponent(typeof(MeshFilter))]
 [RequireComponent(typeof(MeshRenderer))]
-public class SphereGenerator : MeshGenerator {
+public class CircleGenerator : MeshGenerator {
 
     /* --- Data --- */
     #region Data   
