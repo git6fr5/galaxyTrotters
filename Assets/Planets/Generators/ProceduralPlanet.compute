@@ -2,28 +2,39 @@
 #pragma kernel ComputeVertexCraters
 #pragma kernel ComputeVertexWave
 
-// Create a RenderTexture with enableRandomWrite flag and set it
-// with cs.SetTexture
-
-// RWTexture2D<float4> Result;
-
+// General
 RWStructuredBuffer<float3> vertices;
 RWStructuredBuffer<float> heights;
 uint vertexCount;
-float waveLength;
+
+// Wave Kernel.
+float lambdaX;
+float lambdaY;
+float lambdaZ;
+
+float ampX;
+float ampY;
+float ampZ;
+
+float offsetX;
+float offsetY;
+float offsetZ;
 
 [numthreads(512,1,1)]
 void ComputeVertexWave(uint id : SV_DispatchThreadID)
 {
+    // Safety.
     if (id >= vertexCount) {
         return;
     }
 
-    float3 vertexPosition = vertices[id];
-    heights[id] = 1 + 0.25 * sin(vertexPosition.y * waveLength);
-    vertices[id] = heights[id] * vertexPosition;
+    float3 vertex = vertices[id];
+    heights[id] = 1 + (ampX * sin(vertex.x * lambdaX + offsetX) + ampY * sin(vertex.y * lambdaY + offsetY) + ampZ * sin(vertex.z * lambdaZ + offsetZ));
+    vertices[id] = heights[id] * vertex;
 }
 
+
+// Crater Kernel.
 int craterCount;
 RWStructuredBuffer<float3> craterOrigins;
 RWStructuredBuffer<float> craterRadii;
@@ -37,12 +48,12 @@ void ComputeVertexCraters(uint id : SV_DispatchThreadID)
         return;
     }
 
-    float3 vertexPosition = vertices[id];
+    float3 vertex = vertices[id];
     float height = 1;
 
     for (int i = 0; i < craterCount; i++)
     {
-        float distanceToCrater = length(vertexPosition - craterOrigins[i]);
+        float distanceToCrater = length(vertex - craterOrigins[i]);
         bool withinCrater = distanceToCrater < craterRadii[i];
 
         if (withinCrater) {
@@ -52,6 +63,6 @@ void ComputeVertexCraters(uint id : SV_DispatchThreadID)
     }
 
     heights[id] = height;
-    vertices[id] = heights[id] * vertexPosition;
+    vertices[id] = heights[id] * vertex;
 
 }

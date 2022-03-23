@@ -256,12 +256,7 @@ MonoBehaviour:
   autoconstruct: 0
   construct: 1
   render: 1
-  usewave: 0
-  usecraters: 1
-  newcraters: 0
-  vertexShader: {fileID: 7200000, guid: 7b28b5e51fddd97419217939edb866f1, type: 3}
-  vertexHeightsWaveLength: 0.025
-  craterCount: 1000
+  useshaders: 0
   sphereSettings:
     radius: 40
     subdivisions: 4

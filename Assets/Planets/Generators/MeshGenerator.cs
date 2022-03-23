@@ -58,6 +58,8 @@ public class MeshGenerator : MonoBehaviour {
         public MeshTopology topology;
         public float[] heights;
 
+        public Vector3 origin;
+
         public static MeshSettings operator +(MeshSettings a, MeshSettings b) => Addition(a, b);
         public static MeshSettings operator +(MeshSettings a, int[] indices) => AddIndices(a, indices);
         public static MeshSettings operator *(MeshSettings a, Vector3 v) => Rotate(a, v);
@@ -180,6 +182,14 @@ public class MeshGenerator : MonoBehaviour {
             return new MeshSettings(newPositions, a.indices, a.colors, a.topology);
         }
 
+        public static MeshSettings Spherify(MeshSettings a, float radius, Vector3 origin) {
+            Vector3[] newPositions = new Vector3[a.positions.Length];
+            for (int i = 0; i < a.positions.Length; i++) {
+                newPositions[i] = (a.positions[i]-origin).normalized * radius + origin;
+            }
+            return new MeshSettings(newPositions, a.indices, a.colors, a.topology);
+        }
+
     }
 
     #endregion
@@ -201,16 +211,7 @@ public class MeshGenerator : MonoBehaviour {
     public bool autoconstruct = false;
     public bool construct = false;
     public bool render = false;
-    public bool usewave = false;
-    public bool usecraters = false;
-    public bool newcraters = false;
-
-    // 
-    [SerializeField] private ComputeShader vertexShader;
-    [SerializeField] private float vertexHeightsWaveLength;
-    public int craterCount;
-    private Craters craters;
-
+    public bool useshaders = false;
 
     #endregion
 
@@ -223,18 +224,12 @@ public class MeshGenerator : MonoBehaviour {
 
     void Update() {
 
-        if (newcraters && meshSettings != null) {
-            craters = RandomCraterDistribution(meshSettings);
-        }
-
-
         if (autoconstruct) {
             construct = true;
         }
 
         if (construct) {
             meshSettings = Generate();
-            craters = RandomCraterDistribution(meshSettings);
             construct = false;
         }
 
@@ -259,6 +254,10 @@ public class MeshGenerator : MonoBehaviour {
 
     #endregion
 
+    public void SetSettings(MeshSettings meshSettings) {
+        this.meshSettings = meshSettings;
+    }
+
     #region Generation
 
     protected virtual MeshSettings Generate() {
@@ -275,112 +274,18 @@ public class MeshGenerator : MonoBehaviour {
         MeshSettings tempSettings = meshSettings.Duplicate();
 
         // We shouldn't need to re-render the mesh just to change the height values.
-        if (usewave) {
-            ComputeVertexWave(ref tempSettings, "ComputeVertexWave");
-        }
-
-        if (usecraters) {
-            ComputeCraters(ref tempSettings, craters, "ComputeVertexCraters");
+        if (useshaders) {
+            ComputeShaders(ref tempSettings);
         }
         // meshSettings.ProcessHeights();
 
         meshFilter.mesh.SetVertices(tempSettings.positions);
         meshFilter.mesh.SetIndices(tempSettings.indices, tempSettings.topology, 0);
         // meshFilter.mesh.colors = tempSettings.colors;
-        // tempSettings.CalculateNormals();
         meshFilter.mesh.RecalculateNormals();
     }
 
-    private void ComputeVertexWave(ref MeshSettings meshSettings, string kernelName) {
-        int kernel = vertexShader.FindKernel(kernelName);
-
-        // Send the vertex data to the compute shader.
-        ComputeBuffer vertexBuffer = new ComputeBuffer(meshSettings.positions.Length, sizeof(float) * 3);
-        vertexBuffer.SetData(meshSettings.positions);
-        vertexShader.SetBuffer(kernel, "vertices", vertexBuffer);
-
-        ComputeBuffer heightBuffer = new ComputeBuffer(meshSettings.positions.Length, sizeof(float));
-        heightBuffer.SetData(meshSettings.heights);
-        vertexShader.SetBuffer(kernel, "heights", heightBuffer);
-
-        // Send the wavelength data to the compute shader.
-        vertexShader.SetInt("vertexCount", meshSettings.positions.Length);
-        vertexShader.SetFloat("waveLength", vertexHeightsWaveLength);
-
-        // Execute the kernel.
-        uint x; uint y; uint z;
-        vertexShader.GetKernelThreadGroupSizes(kernel, out x, out y, out z);
-        vertexShader.Dispatch(kernel, (int)x, (int)y, (int)z);
-
-        // Get the data back.
-        // heightBuffer.GetData(meshSettings.heights);
-        vertexBuffer.GetData(meshSettings.positions);
-
-        vertexBuffer.Release();
-        heightBuffer.Release();
-
-    }
-
-    private void ComputeCraters(ref MeshSettings meshSettings, Craters craters, string kernelName) {
-        int kernel = vertexShader.FindKernel(kernelName);
-
-        // Send the vertex data to the compute shader.
-        ComputeBuffer vertexBuffer = new ComputeBuffer(meshSettings.positions.Length, sizeof(float) * 3);
-        vertexBuffer.SetData(meshSettings.positions);
-        vertexShader.SetBuffer(kernel, "vertices", vertexBuffer);
-
-        ComputeBuffer heightBuffer = new ComputeBuffer(meshSettings.positions.Length, sizeof(float));
-        heightBuffer.SetData(meshSettings.heights);
-        vertexShader.SetBuffer(kernel, "heights", heightBuffer);
-
-        ComputeBuffer craterOriginsBuffer = new ComputeBuffer(craters.origins.Length, sizeof(float) * 3);
-        craterOriginsBuffer.SetData(craters.origins);
-        vertexShader.SetBuffer(kernel, "craterOrigins", craterOriginsBuffer);
-
-        ComputeBuffer craterRadiiBuffer = new ComputeBuffer(craters.radii.Length, sizeof(float));
-        craterRadiiBuffer.SetData(craters.radii);
-        vertexShader.SetBuffer(kernel, "craterRadii", craterRadiiBuffer);
-
-        ComputeBuffer craterDepthsBuffer = new ComputeBuffer(craters.depths.Length, sizeof(float));
-        craterDepthsBuffer.SetData(craters.depths);
-        vertexShader.SetBuffer(kernel, "craterDepths", craterDepthsBuffer);
-
-        // Send the wavelength data to the compute shader.
-        vertexShader.SetInt("craterCount", craters.origins.Length);
-        vertexShader.SetInt("vertexCount", meshSettings.positions.Length);
-
-        // Execute the kernel.
-        uint x; uint y; uint z;
-        vertexShader.GetKernelThreadGroupSizes(kernel, out x, out y, out z);
-        vertexShader.Dispatch(kernel, (int)x, (int)y, (int)z);
-
-        // Get the data back.
-        // heightBuffer.GetData(meshSettings.heights);
-        vertexBuffer.GetData(meshSettings.positions);
-
-        vertexBuffer.Release();
-        heightBuffer.Release();
-        craterOriginsBuffer.Release();
-        craterRadiiBuffer.Release();
-        craterDepthsBuffer.Release();
-
-    }
-
-    private Craters RandomCraterDistribution(MeshSettings meshSettings) {
-
-        Vector3[] craterOrigins = new Vector3[craterCount];
-        float[] craterRadii = new float[craterCount];
-        float[] craterDepths = new float[craterCount];
-
-        for (int i = 0; i < craterCount; i++) {
-
-            craterOrigins[i] = meshSettings.positions[Random.Range(0, meshSettings.positions.Length)];
-            craterRadii[i] = Random.Range(1f, 10f);
-            craterDepths[i] = Random.Range(0.01f, 0.05f);
-
-        }
-
-        return new Craters(craterOrigins, craterRadii, craterDepths);
+    protected virtual void ComputeShaders(ref MeshSettings meshSettings) {
 
     }
 

@@ -19,10 +19,20 @@ public class SphereGenerator : MeshGenerator {
         public int subdivisions;
         public MeshTopology topology;
 
+        public Vector3 origin;
+
         public SphereSettings(float radius, int subdivisions, MeshTopology topology) {
             this.radius = radius;
             this.subdivisions = subdivisions;
             this.topology = topology;
+            this.origin = Vector3.zero;
+        }
+
+        public SphereSettings(float radius, int subdivisions, MeshTopology topology, Vector3 origin) {
+            this.radius = radius;
+            this.subdivisions = subdivisions;
+            this.topology = topology;
+            this.origin = origin;
         }
     }
 
@@ -44,7 +54,7 @@ public class SphereGenerator : MeshGenerator {
         return Construct(sphereSettings);
     }
 
-    protected MeshSettings Construct(SphereSettings sphereSettings) {
+    public MeshSettings Construct(SphereSettings sphereSettings) {
 
         List<Vertex> vertices = new List<Vertex>();
 
@@ -136,7 +146,7 @@ public class SphereGenerator : MeshGenerator {
         Vector3[] points = new Vector3[vertices.Count];
         Color[] colors = new Color[vertices.Count];
         for (int i = 0; i < vertices.Count; i++) {
-            points[vertices[i].index] = vertices[i].position;
+            points[vertices[i].index] = vertices[i].position + sphereSettings.origin;
             colors[vertices[i].index] = new Color(i % 3 == 0 ? 1f : 0f, i % 3 == 1 ? 1f : 0f, i % 3 == 2 ? 1f : 0f, 1f);
         }
 
@@ -147,7 +157,7 @@ public class SphereGenerator : MeshGenerator {
             }
         }
 
-        return MeshSettings.Spherify(new MeshSettings(points, indices, colors), sphereSettings.radius);
+        return MeshSettings.Spherify(new MeshSettings(points, indices, colors), sphereSettings.radius, sphereSettings.origin);
     }
 
     private Vertex Bisect(Vertex v1, Vertex v2, ref List<Vertex> subdivisionCache) {
@@ -165,5 +175,6 @@ public class SphereGenerator : MeshGenerator {
     }
 
     #endregion
+
 
 }
