@@ -1,0 +1,540 @@
+fileFormatVersion: 2
+guid: 2d90cfe0384c41e49a1865364fd482fb
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -4898235241286722277
+    second: Planet Set A_0
+  - first:
+      213: 1146768590249093379
+    second: Planet Set A_1
+  - first:
+      213: -9051168007687183616
+    second: Planet Set A_2
+  - first:
+      213: -8393640742972852276
+    second: Planet Set A_3
+  - first:
+      213: 2385487648602676998
+    second: Planet Set A_4
+  - first:
+      213: 2138816781522149974
+    second: Planet Set A_5
+  - first:
+      213: -812207931006304736
+    second: Planet Set A_6
+  - first:
+      213: -4668638875669103366
+    second: Planet Set A_7
+  - first:
+      213: -4973500473406498384
+    second: Planet Set A_8
+  - first:
+      213: 2829220459085373426
+    second: Planet Set A_9
+  - first:
+      213: -5720109244136014834
+    second: Planet Set A_10
+  - first:
+      213: 4482550095830265178
+    second: Planet Set A_11
+  - first:
+      213: 6305484644430455102
+    second: Planet Set A_12
+  - first:
+      213: 8231206073865383545
+    second: Planet Set A_13
+  - first:
+      213: 5485108385649321822
+    second: Planet Set A_14
+  - first:
+      213: -6540167140284613796
+    second: Planet Set A_15
+  externalObjects: {}
+  serializedVersion: 11
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: iPhone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Windows Store Apps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Planet Set A_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1113.5
+        width: 1010.25
+        height: 1113.5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b1d1ec00009f50cb0800000000000000
+      internalID: -4898235241286722277
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Planet Set A_1
+      rect:
+        serializedVersion: 2
+        x: 1010
+        y: 1113.5
+        width: 1010.25
+        height: 1113.5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3096f5df4f32aef00800000000000000
+      internalID: 1146768590249093379
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Planet Set A_2
+      rect:
+        serializedVersion: 2
+        x: 2020
+        y: 1113.5
+        width: 1010.25
+        height: 1113.5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 003ec63f6aac36280800000000000000
+      internalID: -9051168007687183616
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Planet Set A_3
+      rect:
+        serializedVersion: 2
+        x: 3030
+        y: 1113.5
+        width: 1010.25
+        height: 1113.5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cc77bd6373cc38b80800000000000000
+      internalID: -8393640742972852276
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Planet Set A_4
+      rect:
+        serializedVersion: 2
+        x: 4040
+        y: 1113.5
+        width: 1010.25
+        height: 1113.5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 60f5b07a064fa1120800000000000000
+      internalID: 2385487648602676998
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Planet Set A_5
+      rect:
+        serializedVersion: 2
+        x: 5050
+        y: 1113.5
+        width: 1010.25
+        height: 1113.5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 652a546e78a9ead10800000000000000
+      internalID: 2138816781522149974
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Planet Set A_6
+      rect:
+        serializedVersion: 2
+        x: 6060
+        y: 1113.5
+        width: 1010.25
+        height: 1113.5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 02e3d94a0357ab4f0800000000000000
+      internalID: -812207931006304736
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Planet Set A_7
+      rect:
+        serializedVersion: 2
+        x: 7070
+        y: 1113.5
+        width: 1010.25
+        height: 1113.5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: afcf9279da9a53fb0800000000000000
+      internalID: -4668638875669103366
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Planet Set A_8
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0.5
+        width: 1010.25
+        height: 1113.5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0b95e509ba39afab0800000000000000
+      internalID: -4973500473406498384
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Planet Set A_9
+      rect:
+        serializedVersion: 2
+        x: 1010
+        y: 0.5
+        width: 1010.25
+        height: 1113.5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2ff1d078409634720800000000000000
+      internalID: 2829220459085373426
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Planet Set A_10
+      rect:
+        serializedVersion: 2
+        x: 2020
+        y: 0.5
+        width: 1010.25
+        height: 1113.5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e0c38dae2f61e90b0800000000000000
+      internalID: -5720109244136014834
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Planet Set A_11
+      rect:
+        serializedVersion: 2
+        x: 3030
+        y: 0.5
+        width: 1010.25
+        height: 1113.5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a5d2bd50097353e30800000000000000
+      internalID: 4482550095830265178
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Planet Set A_12
+      rect:
+        serializedVersion: 2
+        x: 4040
+        y: 0.5
+        width: 1010.25
+        height: 1113.5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e3125ff40e4918750800000000000000
+      internalID: 6305484644430455102
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Planet Set A_13
+      rect:
+        serializedVersion: 2
+        x: 5050
+        y: 0.5
+        width: 1010.25
+        height: 1113.5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 97ea8c9305e1b3270800000000000000
+      internalID: 8231206073865383545
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Planet Set A_14
+      rect:
+        serializedVersion: 2
+        x: 6060
+        y: 0.5
+        width: 1010.25
+        height: 1113.5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e57e421f3050f1c40800000000000000
+      internalID: 5485108385649321822
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Planet Set A_15
+      rect:
+        serializedVersion: 2
+        x: 7070
+        y: 0.5
+        width: 1010.25
+        height: 1113.5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c5b37af13a8ac35a0800000000000000
+      internalID: -6540167140284613796
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+  spritePackingTag: 
+  pSDRemoveMatte: 0
+  pSDShowRemoveMatteOption: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
