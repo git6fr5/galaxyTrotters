@@ -14,16 +14,24 @@ namespace Galaxy.Objects {
         #region Fields
 
         /* --- Static Variables --- */
+        
+        // The default canvas size for sprites
+        public static int DefaultCanvasSize = 512;
 
         // The increment precision this rotates with.
-        public static int DefaultRotationPrecision = 180;
-        public static float DeltaAngle => 360f / DefaultRotationPrecision;
+        public static int DefaultRotationPrecision = 90;
+        public static float DeltaAngle => 360f / (float)DefaultRotationPrecision;
 
         // The delay between processing inputs.
         public static float DefaultInputDelay = 0.025f; 
 
         // The area that this can be selected in.
         public static float DefaultSelectionRadius = 0.5f; 
+
+        /* --- Member Components --- */
+
+        // The sprite renderer attached to this object.
+        public SpriteRenderer m_SpriteRenderer => GetComponent<SpriteRenderer>();
 
         /* --- Member Settings --- */
 
@@ -39,7 +47,7 @@ namespace Galaxy.Objects {
         [SerializeField]
         private bool m_Rotatable = false;
 
-        /* --- Member Properties --- */
+        /* --- Member Variables --- */
 
         // The position of this object.
         public Vector2 Position => (Vector2)transform.position;
@@ -47,6 +55,7 @@ namespace Galaxy.Objects {
         // The direction this object is facing.
         [SerializeField, ReadOnly]
         private float m_Angle = 0f;
+        public float Angle => m_Angle;
         public Vector2 Direction => Quaternion.Euler(0f, 0f, m_Angle) * Vector2.right;
 
         // If this object is being held.
@@ -78,7 +87,7 @@ namespace Galaxy.Objects {
             m_Hover = (Game.MousePosition - Position).sqrMagnitude < (DefaultSelectionRadius * DefaultSelectionRadius);
 
             // Toggle selection/begin holding.
-            if (m_Hover && Game.LPress) {
+            if (m_Hover && Game.LPress && !Game.AltPressed) {
                 m_Selected = true;
                 m_Held = true;
             }
@@ -105,6 +114,9 @@ namespace Galaxy.Objects {
             if (m_Rotatable && m_Selected) {
                 Rotate(Game.Scroll, Time.deltaTime);
             }
+
+            // Draws the sprite to the screen.
+            Draw();
 
         }
 
@@ -135,6 +147,36 @@ namespace Galaxy.Objects {
         public void ForceSelect(bool select, bool alsoHold = true) {
             m_Selected = select;
             m_Held = select && alsoHold;
+        }
+
+        // Draw the sprite.
+        protected virtual void Draw() {
+            // Guards against drawing without a renderer.
+            if (m_SpriteRenderer == null) { return; }
+
+            // Use different colors and sizes to indicate
+            // the different states.
+            float scale = 1f;
+            float outlineWidth = 0.025f;
+            Color outlineColor = Color.white;
+            if (m_Held) {
+                outlineColor = Color.red;
+                outlineWidth = 0.1f;
+                scale = 0.9f;
+            }
+            else if (m_Selected) {
+                outlineColor = new Color(0.5f, 0.5f, 1f);
+                outlineWidth = 0.05f;
+                scale = 1.025f;
+            }
+            else if (m_Hover) {
+                outlineColor = Color.yellow;
+                outlineWidth = 0.04f;
+                scale = 1.05f;
+            }
+            m_SpriteRenderer.material.SetColor("_OutlineColor", outlineColor);
+            m_SpriteRenderer.material.SetFloat("_OutlineWidth", outlineWidth);
+            transform.localScale = new Vector3(1f, 1f, 1f) * scale;
         }
 
         // Draw gizmos to help with debugging.

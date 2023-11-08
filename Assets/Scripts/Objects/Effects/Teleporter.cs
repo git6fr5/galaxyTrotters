@@ -81,6 +81,10 @@ namespace Galaxy.Objects {
             }
         }
 
+        protected override void Draw() {
+            base.Draw();
+        } 
+
         protected override void Debug() {
             // Draw the ports.
             if (m_Ports != null) {
